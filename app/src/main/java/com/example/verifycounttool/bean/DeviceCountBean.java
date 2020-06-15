@@ -22,7 +22,17 @@ public class DeviceCountBean extends LitePalSupport {
     double Sg2t;
     int t;
     long dateEndoc;
+
+    public String getOriData() {
+        return oriData;
+    }
+
+    public void setOriData(String oriData) {
+        this.oriData = oriData;
+    }
+
     boolean isEffective = true;//当前值是否有效,默认有效
+    String oriData;//原生数据
     public long getDateEndoc() {
         return dateEndoc;
     }
@@ -164,14 +174,29 @@ public class DeviceCountBean extends LitePalSupport {
         this.i3t = i3t;
         this.i4t = i4t;
         this.i5t = i5t;
-        this.k = k;
+        this.k0n = k;
         Sg0t = sg0t;
         Sg1t = sg1t;
         Sg2t = sg2t;
         this.t = t;
         this.dateEndoc = getLongTime(date);
     }
-
+    public DeviceCountBean( String oriData,int t,double i0t, double i1t, double i2t, double i3t, double i4t, double i5t, double k, double sg0t, double sg1t, double sg2t, boolean isEffective, Date date) {
+        this.oriData =oriData;
+        this.t = t;
+        this.i0t = i0t;
+        this.i1t = i1t;
+        this.i2t = i2t;
+        this.i3t = i3t;
+        this.i4t = i4t;
+        this.i5t = i5t;
+        this.k0n = k;
+        this.Sg0t = sg0t;
+        this.Sg1t = sg1t;
+        this.Sg2t = sg2t;
+        this.isEffective=isEffective;
+        this.dateEndoc = getLongTime(date);
+    }
     public DeviceCountBean( double sg0t, double sg1t, double sg2t, int t, Date date) {
         Sg0t = sg0t;
         Sg1t = sg1t;

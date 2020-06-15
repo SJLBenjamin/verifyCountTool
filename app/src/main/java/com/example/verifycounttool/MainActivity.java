@@ -14,7 +14,13 @@ import android.os.Handler;
 import android.os.ParcelUuid;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,12 +58,18 @@ public class MainActivity extends AppCompatActivity {
     String TAG ="verifyMainActivity";
     List<String>  mListDeviceName = new ArrayList<String>();
     List<BleDevice>  mListDevice= new ArrayList<BleDevice>();
+    List<String>  mDataList = new ArrayList<>();
+    MyApter myApter =  new MyApter();
     private TextView tvName;
+    private ListView lvShow;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         tvName = (TextView) findViewById(R.id.tv_name);
+        lvShow = (ListView) findViewById(R.id.lv_show);
+        lvShow.setAdapter(myApter);
         findViewById(R.id.bt_export).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -69,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
                     file.mkdirs();
                 }
                 String excelFileName = "CountExcel.xls";
-                String[] title = {"t", "I0t", "I1t", "I2t", "I3t", "I4t", "I5t", "k", "Sg0t", "Sg1t", "Sg2t"};
+                String[] title = {"oriData","t", "I0t", "I1t", "I2t", "I3t", "I4t", "I5t", "k", "Sg0t", "Sg1t", "Sg2t"};
                     String sheetName = "demoSheetName";
                     List<DeviceCountBean> all1 = LitePal.findAll(DeviceCountBean.class);
                     if(all1.size()==0){
@@ -88,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
 
     //权限选择
     private void requestPermission() {
+        //LitePal.deleteAll(DeviceCountBean.class);
         rxPermissions.request(Manifest.permission.BLUETOOTH_ADMIN, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE).subscribe(
                 new Consumer<Boolean>() {
                     @Override
@@ -107,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
         Ble.options().setLogTAG("1234")
                 //.setLogBleExceptions(true)//设置是否输出打印蓝牙日志（非正式打包请设置为true，以便于调试）
                 .setThrowBleException(true)//设置是否抛出蓝牙异常
-                .setAutoConnect(true)//设置是否自动连接
+                .setAutoConnect(false)//设置是否自动连接
                 .setConnectFailedRetryCount(3)//连接失败重试时间
                 .setConnectTimeout(10 * 1000)//设置连接超时时长（默认10*1000 ms）
                 .setScanPeriod(8 * 1000)//设置扫描时长（默认10*1000 ms）
@@ -279,46 +292,138 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
-
         }
     };
+
+    //日期
+    Calendar mCalendar =Calendar.getInstance();
+    int length =-1;//-1表示表示还没有接收数据
     private void setNotify(BleDevice device) {
         Ble.getInstance().enableNotify(device, true, new BleNotiftCallback<BleDevice>() {
             @Override
             public void onChanged(BleDevice device, BluetoothGattCharacteristic characteristic) {
-                byte[] characteristicValue = characteristic.getValue();
-                if(characteristicValue.length==2){//如果是开始标识
+                final byte[] characteristicValue = characteristic.getValue();
+//                Log.d(TAG,bytesToHexString(characteristicValue,characteristicValue.length));
+
+//                synchronized (MainActivity.class) {
+//                        runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                mDataList.add(bytesToHexString(characteristicValue, characteristicValue.length));
+//                                myApter.notifyDataSetChanged();
+//                            }
+//                        });
+//
+//                }
+//                if(true){
+//                    return;
+//                }
+
+
                     if(characteristicValue[0]==0){
                         length++;
-                    }else if(characteristicValue[0]==0xff) {
-                        if(length==characteristicValue[1]){//长度一致
-                            ToastUtils.showToast(mContext,"数据接收成功");
+                    }else if(characteristicValue[0]==2) {
+                        Log.d(TAG,"length==="+length);
+                        if(length==bytesToInt(characteristicValue[1],characteristicValue[2])){//长度一致
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    length=0;
+                                    ToastUtils.showToast(mContext,"数据接收成功");
+                                    List<DeviceCountBean> deviceCountBeans = LitePal.findAll(DeviceCountBean.class);
+                                    for (DeviceCountBean deviceCountBean:deviceCountBeans){
+                                        mDataList.add(deviceCountBean.toString());
+                                   }
+                                    myApter.notifyDataSetChanged();
+                                }
+                            });
                         }else {
                             //长度不一致
+                            length=0;
+                            ToastUtils.showToast(mContext,"数据接收失败");
                             LitePal.deleteAll(DeviceCountBean.class);//清除数据库
                         }
-                    }
-                }else {
-                    length++;//接收到血糖数据
+                    } else if(characteristicValue[0]==1) {
+                        length++;//接收到血糖数据
+                        int t =bytesToInt(characteristicValue[1],characteristicValue[2]);
+                        double i0 =bytesToInt(characteristicValue[3],characteristicValue[4])/100.0;
+                        double i1 =bytesToInt(characteristicValue[5],characteristicValue[6])/100.0;
+                        double i2 =bytesToInt(characteristicValue[7],characteristicValue[8])/100.0;
+                        double i3 =bytesToInt(characteristicValue[9],characteristicValue[10])/100.0;
+                        double i4 =bytesToInt(characteristicValue[11],characteristicValue[12])/100.0;
+                        double i5 =bytesToInt(characteristicValue[13],characteristicValue[14])/100.0;
+                        double k =bytesToInt(characteristicValue[15],characteristicValue[16])/100.0;
+                        double sg0 =bytesToInt(characteristicValue[17],characteristicValue[18])/100.0;
+                        double sg1 =bytesToInt(characteristicValue[19],characteristicValue[20])/100.0;
+                        double sg2 =bytesToInt(characteristicValue[21],characteristicValue[22])/100.0;
+                        boolean isEffect=characteristicValue[23]==1?true:false;
+                        mCalendar.set(Calendar.YEAR,2000+characteristicValue[24]);
+                        mCalendar.set(Calendar.MONTH,characteristicValue[25]-1);
+                        mCalendar.set(Calendar.DAY_OF_MONTH,characteristicValue[26]);
+                        mCalendar.set(Calendar.HOUR_OF_DAY,characteristicValue[27]);
+                        mCalendar.set(Calendar.MINUTE,characteristicValue[28]);
+                        DeviceCountBean deviceCountBean=new DeviceCountBean(bytesToHexString(characteristicValue,characteristicValue.length),t,i0,i1,i2,i3,i4,i5,k,sg0,sg1,sg2,isEffect,mCalendar.getTime());
+                        Log.d(TAG,bytesToHexString(characteristicValue,characteristicValue.length));
+                        Log.d(TAG,"receive data=="+deviceCountBean.toString());
+                        deviceCountBean.save();
                     //解析数据
-                    double ad = (double) ((receiveData[9] & 0x00ff) + ((receiveData[10] << 8) & 0x0000ff00)) / 10;
-                    bytesToInt();
+                    //double ad = (double) ((characteristicValue[9] & 0x00ff) + ((characteristicValue[10] << 8) & 0x0000ff00)) / 10;
+                    //bytesToInt();
                 }
                 /*
                 * 收到数据解析
                 * */
-            Log.d(TAG,bytesToHexString(characteristic.getValue(),characteristic.getValue().length));
+            //Log.d(TAG,bytesToHexString(characteristic.getValue(),characteristic.getValue().length));
             }
         });
     }
 
+    //大端模式
     public static int bytesToInt(byte src, byte src2) {
         int value;
         value = (int) ((src & 0xFF)
                 | ((src2 & 0xFF) << 8)) & 0x0000ffff;
         return value;
     }
-    int length =-1;//-1表示表示还没有接收数据
+
+    class MyApter extends BaseAdapter {
+
+        @Override
+        public int getCount() {
+            return mDataList.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return mDataList.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return mDataList.size();
+        }
+        class ViewHolder{
+            TextView data;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            ViewHolder holder = null;
+            if(convertView==null){  //如果系统里面没有回收的view,那么就创建一个
+                convertView =  LayoutInflater.from(getContext()).inflate(R.layout.device_layout, parent, false);
+                holder = new ViewHolder();
+
+                holder.data = (TextView) convertView.findViewById(R.id.tv_device);
+                convertView.setTag(holder);  //当前这个条目设置一个Tag
+            }else{//如果有的话就直接拿过来用,
+                holder = (ViewHolder) convertView.getTag();
+            }
+            //设置holder
+            holder.data.setText(mDataList.get(position));
+            return convertView;
+        }
+    }
+
 }
 
 

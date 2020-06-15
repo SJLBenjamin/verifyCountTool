@@ -247,6 +247,7 @@ public class ExcelUtil {
                 for (int j = 0; j < objList.size(); j++) {
                     DeviceCountBean projectBean = (DeviceCountBean) objList.get(j);
                     List<String> list = new ArrayList<>();
+                    list.add(projectBean.getOriData());
                     list.add(""+(projectBean.getT()));
                     list.add(""+projectBean.getI0t());
                     list.add(""+projectBean.getI1t());
@@ -255,7 +256,7 @@ public class ExcelUtil {
                     list.add(""+projectBean.getI4t());
                     list.add(""+projectBean.getI5t());
                     list.add(""+projectBean.getK0n());
-                    list.add(""+projectBean.getK1n());
+                    //list.add(""+projectBean.getK1n());
                     list.add(""+projectBean.getSg0t());
                     list.add(""+projectBean.getSg1t());
                     list.add(""+projectBean.getSg2t());
