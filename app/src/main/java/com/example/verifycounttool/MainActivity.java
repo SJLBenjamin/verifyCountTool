@@ -70,6 +70,12 @@ public class MainActivity extends AppCompatActivity {
         tvName = (TextView) findViewById(R.id.tv_name);
         lvShow = (ListView) findViewById(R.id.lv_show);
         lvShow.setAdapter(myApter);
+      findViewById(R.id.bt_delete).setOnClickListener(new View.OnClickListener() {
+          @Override
+          public void onClick(View v) {
+              LitePal.deleteAll(DeviceCountBean.class);
+          }
+      });
         findViewById(R.id.bt_export).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -94,7 +100,6 @@ public class MainActivity extends AppCompatActivity {
                     ToastUtils.showToast(mContext, "数据已导出,路径为" + filePath);
             }
         });
-
         requestPermission();
     }
 
