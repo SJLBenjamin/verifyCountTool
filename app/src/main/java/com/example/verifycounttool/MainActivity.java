@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
                     file.mkdirs();
                 }
                 String excelFileName = "CountExcel.xls";
-                String[] title = {"oriData","t", "I0t", "I1t", "I2t", "I3t", "I4t", "I5t", "k", "Sg0t", "Sg1t", "Sg2t"};
+                String[] title = {"oriData","t", "I0t", "I1t", "I2t", "I3t", "I4t", "I5t", "I5是否有效","k", "Sg0t", "Sg1t", "Sg2t","sg2是否有效","时间"};
                     String sheetName = "demoSheetName";
                     List<DeviceCountBean> all1 = LitePal.findAll(DeviceCountBean.class);
                     if(all1.size()==0){
@@ -361,13 +361,14 @@ public class MainActivity extends AppCompatActivity {
                         double sg0 =bytesToInt(characteristicValue[17],characteristicValue[18])/100.0;
                         double sg1 =bytesToInt(characteristicValue[19],characteristicValue[20])/100.0;
                         double sg2 =bytesToInt(characteristicValue[21],characteristicValue[22])/100.0;
-                        boolean isEffect=characteristicValue[23]==1?true:false;
+                        boolean i5IsEffect=(characteristicValue[23]&1)==1?true:false;
+                        boolean sg2IsEffect=((characteristicValue[23]>>1)&1)==1?true:false;
                         mCalendar.set(Calendar.YEAR,2000+characteristicValue[24]);
                         mCalendar.set(Calendar.MONTH,characteristicValue[25]-1);
                         mCalendar.set(Calendar.DAY_OF_MONTH,characteristicValue[26]);
                         mCalendar.set(Calendar.HOUR_OF_DAY,characteristicValue[27]);
                         mCalendar.set(Calendar.MINUTE,characteristicValue[28]);
-                        DeviceCountBean deviceCountBean=new DeviceCountBean(bytesToHexString(characteristicValue,characteristicValue.length),t,i0,i1,i2,i3,i4,i5,k,sg0,sg1,sg2,isEffect,mCalendar.getTime());
+                        DeviceCountBean deviceCountBean=new DeviceCountBean(bytesToHexString(characteristicValue,characteristicValue.length),t,i0,i1,i2,i3,i4,i5,k,sg0,sg1,sg2,i5IsEffect,sg2IsEffect,mCalendar.getTime());
                         Log.d(TAG,bytesToHexString(characteristicValue,characteristicValue.length));
                         Log.d(TAG,"receive data=="+deviceCountBean.toString());
                         deviceCountBean.save();

@@ -31,8 +31,27 @@ public class DeviceCountBean extends LitePalSupport {
         this.oriData = oriData;
     }
 
-    boolean isEffective = true;//当前值是否有效,默认有效
+    boolean i5isEffective = true;//当前I5值是否有效,默认有效
+
+    boolean sg2IsEffective =true;//当前Sg2值是否有效,默认有效
     String oriData;//原生数据
+
+    public boolean isI5isEffective() {
+        return i5isEffective;
+    }
+
+    public void setI5isEffective(boolean i5isEffective) {
+        this.i5isEffective = i5isEffective;
+    }
+
+    public boolean isSg2IsEffective() {
+        return sg2IsEffective;
+    }
+
+    public void setSg2IsEffective(boolean sg2IsEffective) {
+        this.sg2IsEffective = sg2IsEffective;
+    }
+
     public long getDateEndoc() {
         return dateEndoc;
     }
@@ -41,13 +60,7 @@ public class DeviceCountBean extends LitePalSupport {
         this.dateEndoc = dateEndoc;
     }
 
-    public boolean isEffective() {
-        return isEffective;
-    }
 
-    public void setEffective(boolean effective) {
-        isEffective = effective;
-    }
 
     public double getK0n() {
         return k0n;
@@ -181,7 +194,7 @@ public class DeviceCountBean extends LitePalSupport {
         this.t = t;
         this.dateEndoc = getLongTime(date);
     }
-    public DeviceCountBean( String oriData,int t,double i0t, double i1t, double i2t, double i3t, double i4t, double i5t, double k, double sg0t, double sg1t, double sg2t, boolean isEffective, Date date) {
+    public DeviceCountBean( String oriData,int t,double i0t, double i1t, double i2t, double i3t, double i4t, double i5t, double k, double sg0t, double sg1t, double sg2t, boolean i5isEffective,boolean sg2IsEffective, Date date) {
         this.oriData =oriData;
         this.t = t;
         this.i0t = i0t;
@@ -194,7 +207,8 @@ public class DeviceCountBean extends LitePalSupport {
         this.Sg0t = sg0t;
         this.Sg1t = sg1t;
         this.Sg2t = sg2t;
-        this.isEffective=isEffective;
+        this.i5isEffective=i5isEffective;
+        this.sg2IsEffective=sg2IsEffective;
         this.dateEndoc = getLongTime(date);
     }
     public DeviceCountBean( double sg0t, double sg1t, double sg2t, int t, Date date) {
@@ -227,7 +241,8 @@ public class DeviceCountBean extends LitePalSupport {
                 ", Sg0t=" + Sg0t +
                 ", Sg1t=" + Sg1t +
                 ", Sg2t=" + Sg2t +
-                ", isEffective=" + isEffective +
+                ", i5IsEffective=" + i5isEffective +
+                ", sg2IsEffective=" + sg2IsEffective +
                 ", t=" + t +
                 ", date=" + new SimpleDateFormat("YYYY-MM-dd HH:mm").format(new Date(dateEndoc)) +
                 '}';

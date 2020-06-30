@@ -255,12 +255,13 @@ public class ExcelUtil {
                     list.add(""+projectBean.getI3t());
                     list.add(""+projectBean.getI4t());
                     list.add(""+projectBean.getI5t());
+                    list.add(""+projectBean.isI5isEffective());
                     list.add(""+projectBean.getK0n());
                     //list.add(""+projectBean.getK1n());
                     list.add(""+projectBean.getSg0t());
                     list.add(""+projectBean.getSg1t());
                     list.add(""+projectBean.getSg2t());
-                    list.add(""+projectBean.isEffective());
+                    list.add(""+projectBean.isSg2IsEffective());
                     list.add(new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date(projectBean.getDateEndoc())));
                     for (int i = 0; i < list.size(); i++) {
                         sheet.addCell(new Label(i, j + 1, list.get(i), arial12format));
